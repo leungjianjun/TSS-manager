@@ -4,6 +4,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.program.Program;
 
 public class Resources {
 	
@@ -31,6 +32,24 @@ public class Resources {
 		}
 	}
 	
+	public static Image getLogoImage(String programName){
+		if(programName==null) return getImage(FILE_LOGO);
+		Image image = imageRegistry.get(programName);
+		if(image!=null){
+			return image;
+		}else{
+			Program prog = Program.findProgram(programName);
+			if(prog==null){
+				//找不到对应的程序logo
+				return getImage(FILE_LOGO);
+			}else{
+				image = new Image(null,prog.getImageData());
+				imageRegistry.put(programName, image);
+				return image;
+			}
+		}
+	}
+	
 	public static ImageDescriptor getImageDescriptor(String resourceName){
 		ImageDescriptor imageDescriptor = imageRegistry.getDescriptor(resourceName);
 		if(imageDescriptor!=null){
@@ -44,7 +63,7 @@ public class Resources {
 	
 	// ////////////////////////////////////////////////////////////////////////////////
 	// 一些图片名称的常量
-	public static final String TEST_ICON = "test.png";
+	public static final String TEST_ICON = "login_logo.png";
 
 	public static final String SAMPLES_ICON = "samples.gif";
 
@@ -61,5 +80,9 @@ public class Resources {
 	public static final String SUCCESS = "success.png";
 	public static final String SETUP = "setup.png";
 	public static final String SETUP_WELCOME = "setup_welcome.png";
+	
+	public static final String FOLDER_ICON = "folder.png";
+	public static final String SEMESTER_ICON = "semester.png";
+	public static final String FILE_LOGO = "file.png";
 
 }

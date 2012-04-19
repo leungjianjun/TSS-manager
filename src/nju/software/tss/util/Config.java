@@ -46,7 +46,8 @@ public class Config {
 	public static final String ACTIVETIME = "activeTime";
 	public static final String CONNECTTIMEOUT = "connectTimeout";
 	public static final String UPDATESLTIME = "updateStatusLineTime";
-	public static final String  VERSION = "version";
+	public static final String VERSION = "version";
+	public static final String WORKSPACE = "workspace";
 	
 
 }
