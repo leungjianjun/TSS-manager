@@ -32,7 +32,7 @@ public class ExtendedStatusLineManager extends StatusLineManager{
 		userLabel.setImage(Resources.getImage(Resources.USER));
 		
 		String name;
-		if((name = TSSWindow.tssClient.getRealName())!=null){
+		if((name = Main.tssClient.getRealName())!=null){
 			userLabel.setText("用户："+name);
 		}else{
 			userLabel.setText("用户：请登录");
@@ -63,7 +63,7 @@ public class ExtendedStatusLineManager extends StatusLineManager{
 				if(!Display.getDefault().isDisposed()){
 					//显示登录信息
 					String name;
-					if((name = TSSWindow.tssClient.getRealName())!=null){
+					if((name = Main.tssClient.getRealName())!=null){
 						userLabel.setText("用户："+name);
 					}
 					//显示时间

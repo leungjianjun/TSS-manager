@@ -84,5 +84,22 @@ public class Resources {
 	public static final String FOLDER_ICON = "folder.png";
 	public static final String SEMESTER_ICON = "semester.png";
 	public static final String FILE_LOGO = "file.png";
+	
+	public static final String REFRESH_LOGO = "refresh.png";
+	public static final String ADD_TERMS = "add_terms.png";
+	public static final String MINI_LOGO = "mini_logo.png";
+	public static final String MYCOURSE_LOGO = "mycourse_logo.png";
+	public static final String ACTIVECOURSE_LOGO = "activecourse_logo.png";
+	public static final String ENDCOURSE_LOGO = "endcourse_logo.png";
+	
+	public static final String ADD_COURSE_LOGO = "add_course_logo.png";
+	public static final String MOVE_COURSE_LOGO = "move_course_logo.png";
+	public static final String CURRENT_TERMS="current_terms_logo.png";
+	public static final String DOWNLOAD_MANAGER = "download_manager.png";
+	public static final String DOWNLOAD_MANAGER_16 = "download_manager_16.png";
+	
+	public static final String DOWNLOAD_STATE = "download_state.png";
+	public static final String WAITING_DOWN_STATE = "waiting_download_state.png";
+	public static final String DONE_STATE = "done_state.png";
 
 }

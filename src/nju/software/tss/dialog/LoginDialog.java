@@ -2,14 +2,18 @@ package nju.software.tss.dialog;
 
 import java.io.IOException;
 
-import nju.software.tss.gui.TSSWindow;
+import nju.software.tss.gui.Main;
 import nju.software.tss.resources.Resources;
+import nju.software.tss.util.Config;
+import nju.software.tss.util.Helper;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -54,35 +58,82 @@ public class LoginDialog extends TitleAreaDialog {
 		GridData gd = new GridData();
 		gd.horizontalSpan=3;
 		gd.horizontalAlignment=GridData.FILL;
+		
 		new Label( composite , SWT.NONE).setText("用户名：");
 		userName = new Text(composite ,SWT.BORDER|SWT.SINGLE|SWT.CENTER);
 		userName.setLayoutData(gd);
+		if(Config.preferenceStore().getBoolean(Config.REMBERME))
+			userName.setText(Config.preferenceStore().getString(Config.ACCOUNT));
+		
+		new Label( composite , SWT.NONE).setText("密码：");
+		password = new Text(composite ,SWT.BORDER|SWT.PASSWORD|SWT.SINGLE|SWT.CENTER);
+		password.setLayoutData(gd);
+		if(Config.preferenceStore().getBoolean(Config.REMBERME))
+			password.setText(Helper.decode(Config.preferenceStore().getString(Config.PASSWORD)));
+		
+		final Button remberBtn = new Button(composite,SWT.CHECK|SWT.LEFT);
+		remberBtn.setText("记住密码");
+		//根据配置设置
+		remberBtn.setSelection(Config.preferenceStore().getBoolean(Config.REMBERME));
+		Button autoBtn = new Button(composite,SWT.CHECK|SWT.LEFT);
+		autoBtn.setText("启动后自动登录到TSS");
+		//根据配置设置
+		autoBtn.setSelection(Config.preferenceStore().getBoolean(Config.AUTOLOGIN));
+		
 		userName.addFocusListener( new FocusAdapter(){
 			//当确认密码文本框失去焦点时，判断是否有效
 			public void focusLost(FocusEvent e) {
+				//修改文本后要保存到配置文件中
+				if(remberBtn.getSelection()){
+					Config.preferenceStore().setValue(Config.ACCOUNT, userName.getText());
+				}
 				if(userName.getText().equals("")){
 					setMessage("用户名不能为空!",IMessageProvider.ERROR);
 				}
 			}
 		});
 		
-
-		new Label( composite , SWT.NONE).setText("密码：");
-		password = new Text(composite ,SWT.BORDER|SWT.PASSWORD|SWT.SINGLE|SWT.CENTER);
-		password.setLayoutData(gd);
 		password.addFocusListener( new FocusAdapter(){
 			//当确认密码文本框失去焦点时，判断是否有效
 			public void focusLost(FocusEvent e) {
+				if(remberBtn.getSelection()){
+					Config.preferenceStore().setValue(Config.PASSWORD, Helper.encode(password.getText()));
+				}
 				if(password.getText().equals("")){
 					setMessage("密码不能为空!",IMessageProvider.ERROR);
 				}
 			}
 		});
 		
-		Button remberBtn = new Button(composite,SWT.CHECK|SWT.LEFT);
-		remberBtn.setText("记住密码");
-		Button autoBtn = new Button(composite,SWT.CHECK|SWT.LEFT);
-		autoBtn.setText("启动后自动登录到TSS");
+		remberBtn.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e) {
+				Config.preferenceStore().setValue(Config.REMBERME, e.doit);
+				if(e.doit){
+					//记住密码帐号
+					Config.preferenceStore().setValue(Config.ACCOUNT, userName.getText());
+					Config.preferenceStore().setValue(Config.PASSWORD, Helper.encode(password.getText()));
+				}else{
+					//否则清除密码帐号
+					Config.preferenceStore().setValue(Config.ACCOUNT, "");
+					Config.preferenceStore().setValue(Config.PASSWORD, "");
+				}
+				Config.save();
+			}
+		});
+		
+		autoBtn.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e) {
+				Config.preferenceStore().setValue(Config.AUTOLOGIN, e.doit);
+				//如果能够自动登录，则能够记住密码
+				if(e.doit && !remberBtn.getSelection()){
+					remberBtn.setSelection(true);
+					Config.preferenceStore().setValue(Config.REMBERME, true);
+					Config.preferenceStore().setValue(Config.ACCOUNT, userName.getText());
+					Config.preferenceStore().setValue(Config.PASSWORD, Helper.encode(password.getText()));
+				}
+				Config.save();
+			}
+		});
 		
 		GridData gd2 = new GridData();
 		gd2.horizontalSpan=2;
@@ -101,7 +152,7 @@ public class LoginDialog extends TitleAreaDialog {
 		if (LoginDialog.LOGIN_ID == buttonId){
 			setMessage("正在登录，请稍候...",IMessageProvider.INFORMATION);
 			try {
-				if(TSSWindow.tssClient.login(userName.getText(), password.getText())){
+				if(Main.tssClient.login(userName.getText(), password.getText())){
 					close();
 				}else{
 					setMessage("用户名或密码错误!     ",IMessageProvider.ERROR);

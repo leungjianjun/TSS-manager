@@ -16,11 +16,13 @@ public class Log {
 	}
 	
 	public void info(String message){
-		Main.tssWindow.getStatusLineManager().setMessage(Resources.getImage(Resources.SUCCESS),message);
+		if(Main.tssWindow!=null && Main.tssWindow.getStatusLineManager()!=null)
+			Main.tssWindow.getStatusLineManager().setMessage(Resources.getImage(Resources.SUCCESS),message);
 	}
 	
 	public void info(Image image,String message){
-		Main.tssWindow.getStatusLineManager().setMessage(image,message);
+		if(Main.tssWindow.getStatusLineManager()!=null)
+			Main.tssWindow.getStatusLineManager().setMessage(image,message);
 	}
 	
 	public void warn(String message){

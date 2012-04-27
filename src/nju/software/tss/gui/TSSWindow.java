@@ -1,9 +1,13 @@
 ﻿package nju.software.tss.gui;
 
+import nju.software.tss.action.AddCourseAction;
+import nju.software.tss.action.AddTermsAction;
 import nju.software.tss.action.LoginAction;
-import nju.software.tss.resources.ImageFactory;
-import nju.software.tss.resources.Resources;
-
+import nju.software.tss.action.MiniChangeAction;
+import nju.software.tss.action.OpenDownloadManagerAction;
+import nju.software.tss.action.RefreshLocalAction;
+import nju.software.tss.action.RefreshRemoteAction;
+import nju.software.tss.action.SyncCurrentTermsAction;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.StatusLineManager;
 import org.eclipse.jface.action.ToolBarManager;
@@ -12,21 +16,12 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
 import org.eclipse.swt.custom.CTabFolderEvent;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.TreeEvent;
-import org.eclipse.swt.events.TreeListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
-import org.jsoup.TSSClient;
 
 
 /**
@@ -39,29 +34,38 @@ import org.jsoup.TSSClient;
 public class TSSWindow extends ApplicationWindow {
 	
 	/**
-	 * tssClient后台服务进程，获取网络相关的数据
-	 */
-	public static TSSClient tssClient;
-	
-	/**
 	 * 主题界面的主窗口，让其他类能够访问
 	 */
 	public CTabFolder folder;
+	public Sidebar sidebar;
 	
-	LoginAction loginAction;
+	public LoginAction loginAction;
+	public RefreshLocalAction relcAction;
+	public RefreshRemoteAction rereAction;
+	public AddTermsAction addTermsAction;
+	public MiniChangeAction miniChangeAction;
+	public AddCourseAction addCourseAction;
+	public OpenDownloadManagerAction openDownloadManagerAction;
+	public SyncCurrentTermsAction syncCurrentTermsAction;
 	
-	public TSSWindow(Shell shell) {
-		super(shell);
+	public TSSWindow() {
+		super(null);
 		addAction();
 		addMenuBar();
 		addToolBar(SWT.FLAT | SWT.WRAP);
 		addStatusLine();
 		//this.getShell().setSize(500, 300);
-		tssClient = new TSSClient();
 	}
 	
 	public void addAction(){
 		loginAction = new LoginAction(getShell());
+		relcAction = new RefreshLocalAction();
+		rereAction = new RefreshRemoteAction();
+		addTermsAction = new AddTermsAction(getShell());
+		miniChangeAction = new MiniChangeAction();
+		addCourseAction = new AddCourseAction(getShell());
+		openDownloadManagerAction = new OpenDownloadManagerAction();
+		syncCurrentTermsAction = new SyncCurrentTermsAction(getShell());
 	}
 	
 	/**
@@ -75,6 +79,7 @@ public class TSSWindow extends ApplicationWindow {
 	protected ToolBarManager createToolBarManager(int style) {
 		ToolBarManager toolbar=new ToolBarManager();
 		toolbar.add(loginAction);
+		toolbar.add(miniChangeAction);
 		return toolbar;
 	}
 	
@@ -87,7 +92,7 @@ public class TSSWindow extends ApplicationWindow {
 		MenuManager fileMenu=new MenuManager("&Account");
 		fileMenu.add(loginAction);
 		menubar.add(fileMenu);
-		 return menubar;
+		return menubar;
 	}
 	
 	protected Control createContents(Composite parent) {
@@ -98,7 +103,7 @@ public class TSSWindow extends ApplicationWindow {
 		child1.setLayout(new FillLayout());
 		
 		//创建侧边栏
-		new Sidebar(child1);
+		sidebar = new Sidebar(child1);
 		// 创建自定义选项卡对象
 		folder = new CTabFolder(form, SWT.BORDER);
 		// 设置选项卡的布局，通过布局的设置呈现出最大化和最小化的外观
@@ -115,18 +120,6 @@ public class TSSWindow extends ApplicationWindow {
 		folder.setMinimizeVisible(true);
 		folder.setMaximizeVisible(true);	
 		
-		Image image = Resources.getImage(Resources.SAMPLES_ICON);
-		// 创建选项卡标签对象
-		for (int i = 1; i < 5; i++) {
-			CTabItem item = new CTabItem(folder, SWT.CLOSE);
-			item.setText("选项卡 " + i);
-			item.setImage(image);
-			// 每个选项卡中放置一个Text文本框
-			Text text = new Text(folder, SWT.MULTI | SWT.V_SCROLL| SWT.H_SCROLL);
-			// 文本框中的文字带有\n表示，显示时换到下一行
-			text.setText("这是第" + i + "页:\n该选项卡仿照Eclipse设计\n最大化和最小化按钮都可以使用");
-			item.setControl(text);
-		}
 		// 注册选项卡事件
 		folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
 			// 当单击最小化按钮时触发的事件
@@ -162,7 +155,7 @@ public class TSSWindow extends ApplicationWindow {
 	}
 	
 	public boolean close() {
-		tssClient.exit();
+		Main.tssClient.exit();
 		return super.close();
 	}
 
